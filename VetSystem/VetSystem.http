@@ -1,6 +1,19 @@
-@VetSystem_HostAddress = http://localhost:5035
+@VetSystem_HostAddress = https://localhost:7243
 
 GET {{VetSystem_HostAddress}}/weatherforecast/
 Accept: application/json
+
+###
+
+GET {{VetSystem_HostAddress}}/api/animals/string/records
+
+###
+
+POST {{VetSystem_HostAddress}}/api/animals
+Content-Type: application/json
+
+{
+  //Animal
+}
 
 ###
