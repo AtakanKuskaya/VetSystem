@@ -25,8 +25,8 @@ namespace VetSystem.Entities
         public int OwnerId { get; set; }
 
         // Navigation Properties
-        // public virtual Owner  Owner { get; set; }
-        //public ICollection<Record> Records { get; set; }
+         //public virtual Owner  Owner { get; set; }
+        //public ICollection<Record>? Records { get; set; }
 
     }
 }

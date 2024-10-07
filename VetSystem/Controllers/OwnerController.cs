@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using VetSystem.Data;
+using VetSystem.Dto;
 using VetSystem.Entities;
 
 namespace VetSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class OwnersController : ControllerBase
     {
         private readonly DataContext _context;
@@ -20,101 +21,33 @@ namespace VetSystem.Controllers
             _context = context;
         }
 
-        // GET: api/owners
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Owner>>> GetOwners()
-        {
-            return await _context.Owners.Include(o => o.Animals).ToListAsync();
-        }
-
-        // POST: api/owners
         [HttpPost]
-        public async Task<ActionResult<Owner>> PostOwner(Owner owner)
+        public IActionResult CreateOwner([FromBody] OwnerDto ownerDto)
         {
-            if (owner == null)
-                return NotFound(new { message = "Owner not found." });
-
+            var owner = new Owner { Name = ownerDto.Name, Phone = ownerDto.Phone };
             _context.Owners.Add(owner);
-            await _context.SaveChangesAsync();
-
+            _context.SaveChanges();
             return CreatedAtAction(nameof(GetOwners), new { id = owner.OwnerId }, owner);
-        }
         
-        // POST: api/owners/{ownerId}/animals
-        [HttpPost("{ownerId}/animals")]
-         public async Task<ActionResult<Animal>> PostAnimal(int ownerId, Animal animal)
-         {
-             var owner = await _context.Owners.FindAsync(ownerId);
-             if (owner == null)
-             {
-                 return NotFound(new { message = "Owner not found." });
-             }
+        }
 
-             if (!ModelState.IsValid)
-             {
-                 return BadRequest(ModelState);
-             }
-
-             animal.OwnerId = ownerId;
-             _context.Animals.Add(animal);
-             await _context.SaveChangesAsync();
-
-             return CreatedAtAction(nameof(AnimalsController.GetRecords), "Animals", new { animalId = animal.AnimalId }, animal);
-         }
-       
-        /*
-        //To Get All Owners
-        [HttpGet("Get All Owners")]
-        public async Task<ActionResult<List<Owner>>> GetAllOwners()
+        [HttpGet]
+        public IActionResult GetOwners()
         {
-            var owners = await _context.Owners.ToListAsync();
+            var owners = _context.Owners.Include(o => o.Animals).ToList();
             return Ok(owners);
         }
 
-        //To Get Spesific Owner
-        [HttpGet("Owner/{ownerId}")]
-        public async Task<ActionResult<Owner>> GetOwner(int ownerid)
+        [HttpPost("{ownerId}/animals")]
+        public IActionResult AddAnimal(int ownerId, [FromBody] AnimalDto animalDto)
         {
-            var owner = await _context.Owners.FindAsync(ownerid);
-            if (owner == null)
-                return NotFound(new { message = "Owner not found." });
+            var owner = _context.Owners.Include(o => o.Animals).FirstOrDefault(o => o.OwnerId == ownerId);
+            if (owner == null) return NotFound();
 
-            return Ok(owner);
+            var animal = new Animal { Name = animalDto.Name, Species = animalDto.Species, Gender = animalDto.Gender, Age = animalDto.Age };
+            owner.Animals.Add(animal);
+            _context.SaveChanges();
+            return CreatedAtAction(nameof(GetOwners), new { id = owner.OwnerId }, animal);
         }
-        //To Add Owner
-        [HttpPost]
-        public async Task<ActionResult<List<Owner>>> AddOwner(Owner owner)
-        {
-            _context.Owners.Add(owner);
-            await _context.SaveChangesAsync();
-
-
-            return Ok(await _context.Owners.ToListAsync());
-        }
-        //To Update Owner
-        [HttpPut("Update Owner/{ownerId}")]
-        public async Task<ActionResult<List<Owner>>> UpdateOwner(Owner updatedowner)
-        {
-            var dbowner = await _context.Owners.FindAsync(updatedowner.OwnerId);
-            if (dbowner == null)
-                return NotFound(new { message = "Owner not found." });
-
-            dbowner.Name = updatedowner.Name;
-            dbowner.Phone = updatedowner.Phone;
-            await _context.SaveChangesAsync();
-            return Ok(await _context.Owners.ToListAsync());
-        }
-        //To Delete Owner
-        [HttpDelete("Delete Owner/{ownerId}")]
-        public async Task<ActionResult<List<Owner>>> DeleteOwner(int id)
-        {
-            var dbOwner = await _context.Owners.FindAsync(id);
-            if (dbOwner == null)
-                return NotFound(new { message = "Owner not found." });
-
-            _context.Owners.Remove(dbOwner);
-            await _context.SaveChangesAsync();
-            return Ok(await _context.Owners.ToListAsync());
-        }*/
     }
 }

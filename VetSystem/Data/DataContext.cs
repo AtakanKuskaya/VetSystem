@@ -16,20 +16,5 @@ namespace VetSystem.Data
         public DbSet<Animal> Animals { get; set; }
         public DbSet<Record> Records { get; set; }
         public DbSet<User> Users { get; set; }
-        /*protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            // İlişkileri belirleme
-            modelBuilder.Entity<Owner>()
-                .HasMany(o => o.Animals)
-                .WithOne(a => a.Owner)
-                .HasForeignKey(a => a.OwnerId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Animal>()
-                .HasMany(a => a.Records)
-                .WithOne(r => r.Animal)
-                .HasForeignKey(r => r.AnimalId)
-                .OnDelete(DeleteBehavior.Cascade);
-        }*/
     }
 }
